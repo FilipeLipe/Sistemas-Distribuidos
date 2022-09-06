@@ -12,12 +12,12 @@ idHash = ""
 def configurarMaquina(s):
     global idHash
     #Inicia a thread
-    #newHash = Thread(target=gerarNovaHash, args=(s,))
-    #newHash.start()   
+    newHash = Thread(target=gerarNovaHash, args=(s,))
+    newHash.start()
     time.sleep(2)
 
     #Envia o metodo para configurar a maquina (Metodo|IpMaquina|idHash)
-    s.send(('configMaquina|'+ HOST +'|'+ idHash).encode())
+    s.send(('configMaquina|'+ str(HOST) +'|'+ str(idHash)).encode())
 
     #Resposta do Servidor
     data = s.recv(BUFFER_SIZE)
@@ -37,7 +37,7 @@ def gerarNovaHash(s):
 
         #Caso seja o primeiro não faz o update
         if i != 0:
-            s.send(('updateIdHash|'+idHashAntiga+'|'+idHash).encode())
+            s.send(('updateIdHash|'+str(idHashAntiga)+'|'+str(idHash)).encode())
 
         #Resposta do Servidor
         #data = s.recv(BUFFER_SIZE)
@@ -51,7 +51,7 @@ def gerarNovaHash(s):
 
         #Gira o loop
         i += 1
-        time.sleep(60)
+        time.sleep(30)
 
 def main(argv):
     global idHash
