@@ -7,51 +7,58 @@ BUFFER_SIZE = 1024
 
 #VARIAVEIS GLOBAIS
 idHash = ""
+carteira = 0
+
+def mandarDinheiro(s):
+    global idHash
+
+    idDestino = int(input("\nChave para envio:"))
+    print("------ # ------\nSua Carteira\nR$ "+ str(carteira) +",00\n------ # ------\n")
+    valor = int(input("Valor que deseja enviar:"))
+    
+    s.send(('sendMoney|'+ str(idHash) +'|'+ str(idDestino) +'|'+ str(valor)).encode())
+    
 
 
 def configurarMaquina(s):
-    global idHash
+    global idHash, carteira
     #Inicia a thread
-    newHash = Thread(target=gerarNovaHash, args=(s,))
-    newHash.start()
-    time.sleep(2)
+    
+    idHash = hash(str(random.randint(10,100)))
+    
+    #Inicia a sua carteira com 100
+    carteira = 100
 
     #Envia o metodo para configurar a maquina (Metodo|IpMaquina|idHash)
     s.send(('configMaquina|'+ str(HOST) +'|'+ str(idHash)).encode())
+    print('\n------ # ------\nChave Hash: '+ str(idHash) +'\nCarteira: '+ str(carteira) +',00\n------ # ------')
 
-    #Resposta do Servidor
-    data = s.recv(BUFFER_SIZE)
-    respostaServidor = repr(data)
-    print(respostaServidor)
 
 
 
 def gerarNovaHash(s):
     global idHash
-    i = 0
+    #i=0
     while(True):
         #Gera o Hash
+        time.sleep(60)
         idHashAntiga = idHash
         id = str(random.randint(10,100))
         idHash = hash(id)
 
-        #Caso seja o primeiro não faz o update
-        if i != 0:
-            s.send(('updateIdHash|'+str(idHashAntiga)+'|'+str(idHash)).encode())
+        s.send(('updateIdHash|'+str(idHashAntiga)+'|'+str(idHash)).encode())
 
         #Resposta do Servidor
-        #data = s.recv(BUFFER_SIZE)
-        #respostaServidor = repr(data)
-        #print(respostaServidor)
+        data = s.recv(BUFFER_SIZE)
+        respostaServidor = repr(data)
         #if(respostaServidor == 'hashAtualizado'):
         print('------ # ------\nHash atualizada com sucesso\nNova Hash: '+ str(idHash) +'\n------ # ------')
         #else:
         #    print('Problemas ao atualizar Hash!!')
-         #   idHash = idHashAntiga
+        #    idHash = idHashAntiga
 
         #Gira o loop
-        i += 1
-        time.sleep(30)
+        #i += 1
 
 def main(argv):
     global idHash
@@ -64,11 +71,11 @@ def main(argv):
 
             #Configura a maquina
             configurarMaquina(s)
+            newHash = Thread(target=gerarNovaHash, args=(s,))
+            newHash.start()
             
             while(True):
-                #Envia para o servidor
-                #s.send(texto.encode())
-
+                mandarDinheiro(s)
                 desconect = input("Deseja desconectar ?\nS ou N -> ")
                 if(desconect == 'S'):
                     s.close()

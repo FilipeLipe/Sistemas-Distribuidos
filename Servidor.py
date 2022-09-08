@@ -7,39 +7,58 @@ HOST = '127.0.0.1'
 PORT = 20000
 BUFFER_SIZE = 1024
 
-#['ipMaquina','idHash']
+#['ipMaquina','idHash','Valor']
 maquinas = []
 
 
-def updateMaquina(clientsocket,idHashAntiga, idHash):
+def mandarDinheiro(idHash, idDestino, valor):
     global maquinas
-    print("Antes ->", maquinas)
+    valid = False
+    for maq in maquinas:
+        if(maq[1] == idDestino):
+            valid = True
+            maq[2] = int(maq[2]) + int(valor)
+            break
+    if(valid == True):
+        for maq in maquinas:
+            if(maq[1] == idHash):
+                maq[2] = int(maq[2]) - int(valor)
+                print(maquinas)
+                break
+    else:
+        return "False"
+
+def updateMaquina(idHashAntiga, idHash):
+    global maquinas
     for maq in maquinas:
         if(maq[1] == idHashAntiga):
             maq[1] = idHash
-            clientsocket.send(("hashAtualizado").encode())
-            break
-    print("Depois ->", maquinas)
+            print(maquinas)
+            return "hashAtualizado"
 
 
-def addMaquina(clientsocket, ipMaquina, idHash):
+def addMaquina(ipMaquina, idHash):
     try:
         maquinas.index(ipMaquina)
     except:
-        maquinas.append([ipMaquina,idHash])
-        print('Nova maquina adicionada com sucesso!')
+        maquinas.append([ipMaquina,idHash,100])
         print(maquinas)
-        clientsocket.send(("Maquina adicionada com sucesso!").encode())
+        return "Maquina adicionada com sucesso!"
 
 
 def validaMetodos(clientsocket, mensagemCliente):
     requisicao = mensagemCliente.split('|')
+    resposta = ""
 
     if(requisicao[0] == 'updateIdHash'):
-        updateMaquina(clientsocket,requisicao[1],requisicao[2])
+        resposta = updateMaquina(requisicao[1],requisicao[2])
     elif(requisicao[0] == 'configMaquina'):
-        addMaquina(clientsocket, requisicao[1],requisicao[2])
-        
+        resposta = addMaquina(requisicao[1],requisicao[2])
+    elif(requisicao[0] == 'sendMoney'):
+        resposta = mandarDinheiro(requisicao[1],requisicao[2],requisicao[3])
+    
+    clientsocket.send(resposta.encode())
+
         
 
 
