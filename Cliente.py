@@ -10,11 +10,28 @@ idHash = ""
 carteira = 0
 
 def mandarDinheiro(s):
-    global idHash
-
-    idDestino = int(input("\nChave para envio:"))
-    print("------ # ------\nSua Carteira\nR$ "+ str(carteira) +",00\n------ # ------\n")
-    valor = int(input("Valor que deseja enviar:"))
+    global idHash, carteira
+    valid = False
+    while(True):
+        idDestino = int(input("------ # ------\nChave para envio:"))
+        s.send(('checkHash|'+ str(idDestino)).encode())
+        data = s.recv(BUFFER_SIZE)
+        resp = repr(data)
+        if(resp == "b'Check'"):
+            valid = True
+            break
+        else:
+            print("Chave Invalida!\n------ # ------")
+    
+    if(valid == True):
+        while(True):
+            print("Carteira R$ "+ str(carteira) +",00")
+            valor = int(input("Valor que deseja enviar:"))
+            if(valor > 0 and valor <= carteira):
+                print("Valor Enviado!\n------ # ------")
+                break
+            else:
+                print("Valor não aceito!\n------ # ------")
     
     s.send(('sendMoney|'+ str(idHash) +'|'+ str(idDestino) +'|'+ str(valor)).encode())
     
@@ -31,6 +48,10 @@ def configurarMaquina(s):
 
     #Envia o metodo para configurar a maquina (Metodo|IpMaquina|idHash)
     s.send(('configMaquina|'+ str(HOST) +'|'+ str(idHash)).encode())
+    time.sleep(1)
+    data = s.recv(BUFFER_SIZE)
+    resp = repr(data)
+    print(resp)
     print('\n------ # ------\nChave Hash: '+ str(idHash) +'\nCarteira: '+ str(carteira) +',00\n------ # ------')
 
 
@@ -52,7 +73,7 @@ def gerarNovaHash(s):
         data = s.recv(BUFFER_SIZE)
         respostaServidor = repr(data)
         #if(respostaServidor == 'hashAtualizado'):
-        print('------ # ------\nHash atualizada com sucesso\nNova Hash: '+ str(idHash) +'\n------ # ------')
+        print('\n\n------ # ------\nHash atualizada com sucesso\nNova Hash: '+ str(idHash) +'\n------ # ------\n\n')
         #else:
         #    print('Problemas ao atualizar Hash!!')
         #    idHash = idHashAntiga

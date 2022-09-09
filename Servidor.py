@@ -11,6 +11,14 @@ BUFFER_SIZE = 1024
 maquinas = []
 
 
+def checkHash(idDestino):
+    global maquinas
+    for maq in maquinas:
+        if(maq[1] == idDestino):
+            return "Check"
+    return "False"
+
+
 def mandarDinheiro(idHash, idDestino, valor):
     global maquinas
     valid = False
@@ -56,6 +64,8 @@ def validaMetodos(clientsocket, mensagemCliente):
         resposta = addMaquina(requisicao[1],requisicao[2])
     elif(requisicao[0] == 'sendMoney'):
         resposta = mandarDinheiro(requisicao[1],requisicao[2],requisicao[3])
+    elif(requisicao[0] == 'checkHash'):
+        resposta = checkHash(requisicao[1])
     
     clientsocket.send(resposta.encode())
 
