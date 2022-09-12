@@ -13,7 +13,7 @@ def mandarDinheiro(s):
     global idHash, carteira
     valid = False
     while(True):
-        idDestino = int(input("------ # ------\nChave para envio:"))
+        idDestino = int(input("\nChave para envio:"))
         s.send(('checkHash|'+ str(idDestino)).encode())
         data = s.recv(BUFFER_SIZE)
         resp = repr(data)
@@ -24,9 +24,15 @@ def mandarDinheiro(s):
             print("Chave Invalida!\n------ # ------")
     
     if(valid == True):
+        s.send(('getMaquina|'+ str(HOST)).encode())
+        time.sleep(1)
+        data = s.recv(BUFFER_SIZE)
+        resp = repr(data).rstrip("'")
+        maq =  resp.split('|')
+        carteira = int(maq[2])
         while(True):
             print("Carteira R$ "+ str(carteira) +",00")
-            valor = int(input("Valor que deseja enviar:"))
+            valor = int(input("------ # ------\nValor que deseja enviar:"))
             if(valor > 0 and valor <= carteira):
                 print("Valor Enviado!\n------ # ------")
                 break
@@ -44,14 +50,26 @@ def configurarMaquina(s):
     idHash = hash(str(random.randint(10,100)))
     
     #Inicia a sua carteira com 100
-    carteira = 100
-
-    #Envia o metodo para configurar a maquina (Metodo|IpMaquina|idHash)
-    s.send(('configMaquina|'+ str(HOST) +'|'+ str(idHash)).encode())
+     #Envia o metodo para configurar a maquina (Metodo|IpMaquina|idHash)
+    s.send(('getMaquina|'+ str(HOST)).encode())
     time.sleep(1)
     data = s.recv(BUFFER_SIZE)
-    resp = repr(data)
+    resp = repr(data).rstrip("'")
+    maq =  resp.split('|')
     print(resp)
+    if(maq[0] == "b'True"):
+        idHash = maq[1]
+        carteira = int(maq[2])
+    else:
+        idHash = hash(str(random.randint(10,100)))
+        carteira = 100
+
+        #Envia o metodo para configurar a maquina (Metodo|IpMaquina|idHash)
+        s.send(('configMaquina|'+ str(HOST) +'|'+ str(idHash)).encode())
+        time.sleep(1)
+        data = s.recv(BUFFER_SIZE)
+        resp = repr(data)
+
     print('\n------ # ------\nChave Hash: '+ str(idHash) +'\nCarteira: '+ str(carteira) +',00\n------ # ------')
 
 
@@ -72,14 +90,11 @@ def gerarNovaHash(s):
         #Resposta do Servidor
         data = s.recv(BUFFER_SIZE)
         respostaServidor = repr(data)
-        #if(respostaServidor == 'hashAtualizado'):
-        print('\n\n------ # ------\nHash atualizada com sucesso\nNova Hash: '+ str(idHash) +'\n------ # ------\n\n')
-        #else:
-        #    print('Problemas ao atualizar Hash!!')
-        #    idHash = idHashAntiga
-
-        #Gira o loop
-        #i += 1
+        if(respostaServidor == "b'hashAtualizado'"):
+            print('\n\n------ # ------\nHash atualizada com sucesso\nNova Hash: '+ str(idHash) +'\n------ # ------\n\n')
+        else:
+            print('Problemas ao atualizar Hash!!')
+            idHash = idHashAntiga
 
 def main(argv):
     global idHash
@@ -88,7 +103,7 @@ def main(argv):
             
             #Conecta o cliente ao servidor
             s.connect((HOST, PORT))
-            print("Servidor executando!")
+            print("\nServidor Conectado!")
 
             #Configura a maquina
             configurarMaquina(s)

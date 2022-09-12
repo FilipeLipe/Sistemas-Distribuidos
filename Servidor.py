@@ -11,6 +11,14 @@ BUFFER_SIZE = 1024
 maquinas = []
 
 
+def getMaquina(ipMaquina):
+    global maquinas
+    for maq in maquinas:
+        if(maq[0] == ipMaquina):
+            print(maq)
+            return "True|"+str(maq[1]+"|"+str(maq[2]))
+    return "False"
+
 def checkHash(idDestino):
     global maquinas
     for maq in maquinas:
@@ -66,6 +74,8 @@ def validaMetodos(clientsocket, mensagemCliente):
         resposta = mandarDinheiro(requisicao[1],requisicao[2],requisicao[3])
     elif(requisicao[0] == 'checkHash'):
         resposta = checkHash(requisicao[1])
+    elif(requisicao[0] == 'getMaquina'):
+        resposta = getMaquina(requisicao[1])
     
     clientsocket.send(resposta.encode())
 
