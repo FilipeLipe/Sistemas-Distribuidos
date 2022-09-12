@@ -1,8 +1,8 @@
 import socket, sys, time, hashlib, random
 from threading import Thread
 
-HOST = '127.0.0.1'
-PORT = 20000
+HOST = '192.168.2.164'
+PORT = 4200
 BUFFER_SIZE = 1024
 
 #VARIAVEIS GLOBAIS
@@ -24,7 +24,7 @@ def mandarDinheiro(s):
             print("Chave Invalida!\n------ # ------")
     
     if(valid == True):
-        s.send(('getMaquina|'+ str(HOST)).encode())
+        s.send(('getMaquina|'+ socket.gethostbyname(socket.gethostname())).encode())
         time.sleep(1)
         data = s.recv(BUFFER_SIZE)
         resp = repr(data).rstrip("'")
@@ -51,7 +51,7 @@ def configurarMaquina(s):
     
     #Inicia a sua carteira com 100
      #Envia o metodo para configurar a maquina (Metodo|IpMaquina|idHash)
-    s.send(('getMaquina|'+ str(HOST)).encode())
+    s.send(('getMaquina|'+ socket.gethostbyname(socket.gethostname())).encode())
     time.sleep(1)
     data = s.recv(BUFFER_SIZE)
     resp = repr(data).rstrip("'")
@@ -65,7 +65,7 @@ def configurarMaquina(s):
         carteira = 100
 
         #Envia o metodo para configurar a maquina (Metodo|IpMaquina|idHash)
-        s.send(('configMaquina|'+ str(HOST) +'|'+ str(idHash)).encode())
+        s.send(('configMaquina|'+ socket.gethostbyname(socket.gethostname()) +'|'+ str(idHash)).encode())
         time.sleep(1)
         data = s.recv(BUFFER_SIZE)
         resp = repr(data)

@@ -3,8 +3,8 @@ import socket, sys
 import array as ary
 from threading import Thread
 
-HOST = '127.0.0.1'
-PORT = 20000
+HOST = '192.168.2.164'
+PORT = 4200
 BUFFER_SIZE = 1024
 
 #['ipMaquina','idHash','Valor']
@@ -104,8 +104,8 @@ def main(argv):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
             server_socket.bind((HOST, PORT))
+            server_socket.listen(10)
             while True:
-                server_socket.listen()
                 clientsocket, addr = server_socket.accept()
                 print('------ # ------\n\nConectado ao cliente -> ', addr,'\n')
                 t = Thread(target=on_new_client, args=(clientsocket,addr))
