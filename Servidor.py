@@ -1,14 +1,27 @@
 from posixpath import split
-import socket, sys
+import socket, sys, time
 import array as ary
 from threading import Thread
 
-HOST = '192.168.2.164'
-PORT = 4200
+HOST = '192.168.1.6'
+PORT = 4201
 BUFFER_SIZE = 1024
 
 #['ipMaquina','idHash','Valor']
 maquinas = []
+
+
+def verificaAlteracaoMaquinas():
+    while True:
+        try:
+            maquinaAntiga = maquinas
+            #time.sleep(10)
+            if(maquinas != maquinaAntiga):
+                #clientsocket.send(("updateMaquinas|"+ maquinas).encode())
+                print("updateMaquinas|"+ maquinas)
+        except Exception as error:
+            print("Erro na sincronização das replicas!!")
+            return
 
 
 def getMaquina(ipMaquina):
@@ -121,6 +134,10 @@ def main(argv):
                 #Inicia a thread daquela requisição
                 t = Thread(target=on_new_client, args=(clientsocket,addr))
                 t.start()   
+
+                verificaAlteracao = Thread(target=verificaAlteracaoMaquinas, args=())
+                verificaAlteracao.start()   
+
     except Exception as error:
         print("Erro na execução do servidor!!")
         print(error)        

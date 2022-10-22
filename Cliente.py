@@ -1,7 +1,7 @@
 import socket, sys, time, hashlib, random
 from threading import Thread
 
-HOST = '192.168.2.164'
+HOST = '192.168.1.6'
 PORT = 4200
 BUFFER_SIZE = 1024
 
@@ -86,7 +86,7 @@ def gerarNovaHash(s):
     #i=0
     while(True):
         #Tempo para que a hash seja atualizada
-        time.sleep(180)
+        time.sleep(320)
         idHashAntiga = idHash
         id = str(random.randint(10,100))
         idHash = hash(id)
