@@ -2,14 +2,17 @@ from posixpath import split
 import socket, sys, time
 import array as ary
 from threading import Thread
+from datetime import datetime
 
-HOST = '192.168.1.6'
+
+HOST = '172.27.32.202'
 PORT = 4201
 BUFFER_SIZE = 1024
 
-#['ipMaquina','idHash','Valor']
+#['ipMaquina','idHash','Valor','UltimaTransação']
 maquinas = []
 
+datetime_utc = datetime.now() 
 
 def verificaAlteracaoMaquinas():
     while True:
@@ -50,12 +53,15 @@ def mandarDinheiro(idHash, idDestino, valor):
         if(maq[1] == idDestino):
             valid = True
             maq[2] = int(maq[2]) + int(valor)
+            maq[3] = datetime_utc.strftime('%Y:%m:%d %H:%M:%S %Z %z')
+            print(maq)
             break
     if(valid == True):
         for maq in maquinas:
             #Se de fato ficer conseguido adcionar o valor, ele diminui o valor do remetente
             if(maq[1] == idHash):
                 maq[2] = int(maq[2]) - int(valor)
+                maq[3] = datetime_utc.strftime('%Y:%m:%d %H:%M:%S %Z %z')
                 print(maquinas)
                 break
     else:
@@ -67,6 +73,7 @@ def updateMaquina(idHashAntiga, idHash):
         #Ele procura dentre as maquinas cadastradas, e atualiza a hash
         if(maq[1] == idHashAntiga):
             maq[1] = idHash
+            maq[3] = datetime_utc.strftime('%Y:%m:%d %H:%M:%S %Z %z')
             print(maquinas)
             return "hashAtualizado"
 
@@ -77,7 +84,7 @@ def addMaquina(ipMaquina, idHash):
         maquinas.index(ipMaquina)
     except:
         #Caso não tenha, ele adiciona uma nova maquina
-        maquinas.append([ipMaquina,idHash,100])
+        maquinas.append([ipMaquina,idHash,100,datetime_utc.strftime('%Y:%m:%d %H:%M:%S %Z %z')])
         print(maquinas)
         return "Maquina adicionada com sucesso!"
 

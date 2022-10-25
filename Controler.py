@@ -4,7 +4,7 @@ import array as ary
 from threading import Thread
 from tkinter import X
 
-HOST = '192.168.1.6'
+HOST = '172.27.32.202'
 PORT = 4200
 BUFFER_SIZE = 1024
 
@@ -12,7 +12,7 @@ BUFFER_SIZE = 1024
 conexoes = [[4201, 0],[4202, 0]]
 
 
-def verificaAlteracaoMaquinas(clientsocket):
+def verificaAlteracaoMaquinas(clientsocket, s):
     while True:
         try:
             data = s.recv(BUFFER_SIZE)
@@ -89,6 +89,9 @@ def main(argv):
 
                 #Inicia a thread daquela requisição
                 t = Thread(target=on_new_client, args=(clientsocket,addr))
+                t.start()  
+
+                t = Thread(target=verificaAlteracaoMaquinas, args=(clientsocket,server_socket))
                 t.start()  
                 
 
