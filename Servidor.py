@@ -5,7 +5,7 @@ from threading import Thread
 from datetime import datetime
 
 
-HOST = '172.27.32.202'
+HOST = '192.168.1.9'
 PORT = 4201
 BUFFER_SIZE = 1024
 
@@ -14,17 +14,17 @@ maquinas = []
 
 datetime_utc = datetime.now() 
 
-def verificaAlteracaoMaquinas():
-    while True:
-        try:
-            maquinaAntiga = maquinas
-            #time.sleep(10)
-            if(maquinas != maquinaAntiga):
-                #clientsocket.send(("updateMaquinas|"+ maquinas).encode())
-                print("updateMaquinas|"+ maquinas)
-        except Exception as error:
-            print("Erro na sincronização das replicas!!")
-            return
+# def verificaAlteracaoMaquinas():
+#     while True:
+#         try:
+#             maquinaAntiga = maquinas
+#             #time.sleep(10)
+#             if(maquinas != maquinaAntiga):
+#                 #clientsocket.send(("updateMaquinas|"+ maquinas).encode())
+#                 print("updateMaquinas|"+ maquinas)
+#         except Exception as error:
+#             print("Erro na sincronização das replicas!!")
+#             return
 
 
 def getMaquina(ipMaquina):
@@ -142,8 +142,8 @@ def main(argv):
                 t = Thread(target=on_new_client, args=(clientsocket,addr))
                 t.start()   
 
-                verificaAlteracao = Thread(target=verificaAlteracaoMaquinas, args=())
-                verificaAlteracao.start()   
+                # verificaAlteracao = Thread(target=verificaAlteracaoMaquinas, args=())
+                # verificaAlteracao.start()   
 
     except Exception as error:
         print("Erro na execução do servidor!!")

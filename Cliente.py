@@ -1,7 +1,7 @@
 import socket, sys, time, hashlib, random
 from threading import Thread
 
-HOST = '172.27.32.202'
+HOST = '192.168.1.9'
 PORT = 4200
 BUFFER_SIZE = 1024
 

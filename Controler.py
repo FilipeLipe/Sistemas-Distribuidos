@@ -4,23 +4,23 @@ import array as ary
 from threading import Thread
 from tkinter import X
 
-HOST = '172.27.32.202'
+HOST = '192.168.1.9'
 PORT = 4200
 BUFFER_SIZE = 1024
 
 #[ PortaServidor | QuantidadeConexoes | IpCliente1 | IpCliente2 | ...]
-conexoes = [[4201, 0],[4202, 0]]
+conexoes = [[4201, 0,'192.168.1.9'],[4202, 0,'192.168.1.16']]
 
 
-def verificaAlteracaoMaquinas(clientsocket, s):
-    while True:
-        try:
-            data = s.recv(BUFFER_SIZE)
-            resp = repr(data)
+# def verificaAlteracaoMaquinas(clientsocket, s):
+#     while True:
+#         try:
+#             data = s.recv(BUFFER_SIZE)
+#             resp = repr(data)
 
-        except Exception as error:
-            print("Erro na sincronização das replicas!!")
-            return
+#         except Exception as error:
+#             print("Erro na sincronização das replicas!!")
+#             return
 
 
 def on_new_client(clientsocket,addr):
@@ -37,6 +37,7 @@ def on_new_client(clientsocket,addr):
                 valid = True
                 portMenorConexoes = 10
                 port = 0
+                host = ''
 
                 for con in conexoes:
                     for x in con:
@@ -45,18 +46,17 @@ def on_new_client(clientsocket,addr):
                         if(con[1] < portMenorConexoes):
                                 port = con[0]
                                 portMenorConexoes = con[1]
-
+                                host = con[2]
+                                con.append(s)
                 if(valid == True):
 
                         for con in conexoes:
                             if(con[0] == port):
                                 con[1] += 1
                                 con.append(socket.gethostbyname(socket.gethostname()))
+                        
+                        s.connect((host, port))
 
-                        s.connect((HOST, port))
-
-                        for con in conexoes:
-                            print(con)
                             
                         s.send((mensagemCliente).encode())
                         print("\nServidor Conectado!")
@@ -64,12 +64,16 @@ def on_new_client(clientsocket,addr):
                         resp = repr(data)
                         clientsocket.send(resp.encode())
                         print(resp)
+                        
+                        print(conexoes)
                 else:
-                    s.send((mensagemCliente).encode())
-                    data = s.recv(BUFFER_SIZE)
+                    conexoes[0][3].send((mensagemCliente).encode())
+                    data = conexoes[0][3].recv(BUFFER_SIZE)
                     resp = repr(data)
                     clientsocket.send(resp.encode())
                     print(resp)
+
+                    print(conexoes)
 
             except Exception as error:
                 print("Erro na conexão com o cliente!!")
@@ -91,8 +95,8 @@ def main(argv):
                 t = Thread(target=on_new_client, args=(clientsocket,addr))
                 t.start()  
 
-                t = Thread(target=verificaAlteracaoMaquinas, args=(clientsocket,server_socket))
-                t.start()  
+                # t = Thread(target=verificaAlteracaoMaquinas, args=(clientsocket,server_socket))
+                # t.start()  
                 
 
                   
